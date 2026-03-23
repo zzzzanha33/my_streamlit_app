@@ -161,6 +161,17 @@ def merge_text(list_text: List[str], list_point: List[str], style: str = "dot"):
     return mm_code
 
 
+def search_children(root: Xshow, xs: Xshow, list_children: List[Xshow]) -> List[Xshow]:
+    if xs.connect == []:
+        return list_children
+    else:
+        if (xs != root) and (not xs in list_children):
+            list_children.append(xs)
+        for ys in xs.connect:
+            list_children = search_children(root, ys, list_children)
+    return list_children
+
+
 def build_all_tree(list_xs: List[Xshow]):
     list_text, list_point = [], []
     for xs in list_xs:

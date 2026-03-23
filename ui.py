@@ -9,6 +9,7 @@ from interface import (
     describe_process,
     build_mermaid_text,
     build_all_tree,
+    search_children,
     Xshow,
 )
 
@@ -32,9 +33,12 @@ class UI:
             for xs in self.list_xs
         }
 
-        self.alltree_page = st.Page(
-            self.page_all, title="全部盛り", icon="🗾", url_path="alltree"
-        )
+        list_xs_name = [xs.name for xs in self.list_xs]
+        selected = st.sidebar.selectbox("生成物を探す", options=list_xs_name)
+        if selected:
+            st.sidebar.write(f"👉「{selected}」の詳細を確認中")
+            if st.sidebar.button(selected, f"search_btn{selected}"):
+                st.switch_page(self.detail_pages[selected])
 
         self.page = st.navigation(
             {"ホーム": [self.home_page], "各ルート": list(self.detail_pages.values())}
@@ -44,6 +48,12 @@ class UI:
         ingredients = count_needed(xs, {})
         processes = describe_process(xs)
         mm_code = build_mermaid_text(xs)
+        list_children = search_children(xs, xs, [])
+
+        st.set_page_config(
+            page_title=f"【無機コレクト】{xs.name}の合成手順",
+            page_icon="🌼" if xs.is_special else "🌱",
+        )
 
         st.title(f"{xs.name}の作り方（詳細）")
 
@@ -69,7 +79,16 @@ class UI:
 
         st.graphviz_chart(mm_code, width="stretch")
 
-        if st.button("戻る"):
+        if list_children != []:
+            st.header("関連項目")
+            with st.container(horizontal=True):
+                for ys in list_children:
+                    if st.button(ys.name, key=f"btn{xs.name}-{ys.name}"):
+                        st.switch_page(self.detail_pages[ys.name])
+
+        st.write("")
+
+        if st.button("一覧に戻る"):
             st.switch_page(self.home_page)
 
     def show_root(self, xs: Xshow, text: str):
@@ -82,15 +101,16 @@ class UI:
             ):
                 if not text:
                     if st.button("詳細", key=f"btn{xs.name}"):
-                        st.switch_page(
-                            self.detail_pages[xs.name],
-                        )
+                        st.switch_page(self.detail_pages[xs.name])
                 if xs.catalyst:
                     st.write(f"⏳{xs.catalyst}")
                 for ys in xs.connect:
                     self.show_root(ys, text + xs.name)
 
     def page_home(self):
+        st.set_page_config(
+            page_title="【無機コレクト】合成ルートまとめ", page_icon="🧪"
+        )
 
         st.title("一覧")
 
