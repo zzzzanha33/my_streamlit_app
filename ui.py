@@ -131,7 +131,8 @@ class UI:
         """
         st.write(content_text)
 
-        st.button("生成物一覧へ")
+        if st.button("生成物一覧へ"):
+            st.switch_page(self.list_page)
 
         st.header("探す")
         list_xs_name = [xs.name for xs in self.list_xs]
