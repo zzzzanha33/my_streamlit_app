@@ -8,7 +8,6 @@ from interface import (
     count_needed,
     describe_process,
     build_mermaid_text,
-    build_all_tree,
     search_children,
     Xshow,
 )
@@ -20,7 +19,11 @@ class UI:
         self.list_xs = arrange(self.repo)
 
         self.home_page = st.Page(
-            self.page_home, title="HOME", icon="🏠", url_path="home"
+            self.page_home, title="ホーム", icon="🏠", url_path="home"
+        )
+
+        self.list_page = st.Page(
+            self.page_list, title="一覧", icon="🗺️", url_path="list"
         )
 
         self.detail_pages = {
@@ -33,15 +36,11 @@ class UI:
             for xs in self.list_xs
         }
 
-        list_xs_name = [xs.name for xs in self.list_xs]
-        selected = st.sidebar.selectbox("生成物を探す", options=list_xs_name)
-        if selected:
-            st.sidebar.write(f"👉「{selected}」の詳細を確認中")
-            if st.sidebar.button(selected, f"search_btn{selected}"):
-                st.switch_page(self.detail_pages[selected])
-
         self.page = st.navigation(
-            {"ホーム": [self.home_page], "各ルート": list(self.detail_pages.values())}
+            {
+                "ホーム": [self.home_page, self.list_page],
+                "各ルート": list(self.detail_pages.values()),
+            }
         )
 
     def page_detail(self, xs: Xshow):
@@ -88,8 +87,11 @@ class UI:
 
         st.write("")
 
-        if st.button("一覧に戻る"):
-            st.switch_page(self.home_page)
+        with st.container(horizontal=True):
+            if st.button("一覧に戻る"):
+                st.switch_page(self.list_page)
+            if st.button("ホームに戻る"):
+                st.switch_page(self.home_page)
 
     def show_root(self, xs: Xshow, text: str):
         if not xs.connect:
@@ -107,21 +109,42 @@ class UI:
                 for ys in xs.connect:
                     self.show_root(ys, text + xs.name)
 
-    def page_home(self):
-        st.set_page_config(
-            page_title="【無機コレクト】合成ルートまとめ", page_icon="🧪"
-        )
+    def page_list(self):
+        st.set_page_config(page_title="【無機コレクト】合成ルート一覧", page_icon="🗺️")
 
         st.title("一覧")
 
         for xs in self.list_xs:
             self.show_root(xs, "")
 
-    def page_all(self):
-        code = build_all_tree(self.list_xs)
-        st.title("全体図")
+    def page_home(self):
+        st.set_page_config(
+            page_title="【無機コレクト】合成ルートまとめ/ホーム", page_icon="🧪"
+        )
 
-        st.graphviz_chart(code)
+        st.title("ホーム")
+
+        st.header("概要")
+        content_text = """
+        無機コレクトの、特に合成というシステムに着目して、あるモンスターを合成するために必要な手順等をまとめました。\n
+        なるべく少ない工程でできるように試していますが、素人ゆえ、間違いやバグがあるかもしれません。使えそうだと思ったらお使いください。\n
+        """
+        st.write(content_text)
+
+        st.button("生成物一覧へ")
+
+        st.header("探す")
+        list_xs_name = [xs.name for xs in self.list_xs]
+        selected = st.selectbox(
+            "合成したいモンスターを探す",
+            options=list_xs_name,
+            index=None,
+            placeholder="ex: 王水,炭酸ナトリウム",
+        )
+        if selected:
+            st.write(f"👉「{selected}」の詳細を確認中")
+            if st.button(selected, f"search_btn{selected}"):
+                st.switch_page(self.detail_pages[selected])
 
     def run(self):
         self.page.run()
