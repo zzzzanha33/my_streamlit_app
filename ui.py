@@ -98,7 +98,7 @@ class UI:
             st.write(f"{"🌼" if xs.is_special else "🌱"} {xs.name}")
         else:
             with st.expander(
-                f"{"🌼" if xs.is_special else "🌱"} {xs.name}  (rank:{xs.rank} , effort:{xs.effort})",
+                f"{"🌼" if xs.is_special else "🌱"} {xs.name}",
                 key=f"expander_{text+xs.name}",
             ):
                 if not text:
