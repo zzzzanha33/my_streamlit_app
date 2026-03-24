@@ -119,7 +119,9 @@ class UI:
 
     def page_home(self):
         st.set_page_config(
-            page_title="【無機コレクト】合成ルートまとめ/ホーム", page_icon="🧪"
+            page_title="【無機コレクト】合成ルートまとめ/ホーム",
+            page_icon="🧪",
+            layout="wide",
         )
 
         st.title("ホーム")
@@ -127,6 +129,7 @@ class UI:
         st.header("概要")
         content_text = """
         無機コレクトの、特に合成というシステムに着目して、あるモンスターを合成するために必要な手順等をまとめました。\n
+        何が必要で何をすべきか、全体像がよく見えるように心がけています。\n
         なるべく少ない工程でできるように試していますが、素人ゆえ、間違いやバグがあるかもしれません。使えそうだと思ったらお使いください。\n
         """
         st.write(content_text)
