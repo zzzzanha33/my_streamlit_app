@@ -148,6 +148,7 @@ def merge_text(list_text: List[str], list_point: List[str], style: str = "dot"):
 
     mm_code = "digraph {\n"
     mm_code += f"layout={style};\n"
+    mm_code += 'rankdir="BT"'
 
     mm_code += "node[shape=point,width=0]\n"
     for point in list_point:
